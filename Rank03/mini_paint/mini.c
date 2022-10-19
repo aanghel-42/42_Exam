@@ -10,7 +10,7 @@ typedef struct s_zone
 {
     int width;
     int height;
-    int background;
+    char background;
 }  t_zone;
 
 
@@ -57,7 +57,7 @@ char    *ft_get_zone(FILE *file, t_zone *zone)
     int     i;
     char    *tmp;
 
-    if (fscanf(file, "%d %d %d\n", &zone->height, &zone->width, &zone->background) != 3)
+    if (fscanf(file, "%d %d %c\n", &zone->width, &zone->height, &zone->background) != 3)
         return (NULL);
     if (zone->height <= 0 || zone->height > 300 && zone->width <= 0 || zone->width > 300)
         return (NULL);
@@ -73,10 +73,10 @@ int ft_circle(float x, float y, t_shape *shape)
 {
     float distance;
 
-    distance = sqrt(powf(x - shape->x, 2.) + powf(y - shape->y, 2.));
+    distance = sqrtf(powf(x - shape->x, 2.) + powf(y - shape->y, 2.));
     if (distance <= shape->radius)
     {
-        if ((shape->radius - distance) < 1.000000)
+        if ((shape->radius - distance) < 1.00000000)
             return 2;
         return 1; 
     }
@@ -112,11 +112,11 @@ int ft_draw_shapes(FILE *file, char *drawing, t_zone *zone)
 
     while ((ret = fscanf(file, "%c %f %f %f %c\n", &tmp.type, &tmp.x, &tmp.y, &tmp.radius, &tmp.color)) == 5)
     {
-        if (tmp.radius <= 0.000000 || (tmp.type != 'c' && tmp.type != 'C'))
+        if (tmp.radius <= 0.00000000 || (tmp.type != 'c' && tmp.type != 'C'))
             return (0);
         ft_draw_shape(&tmp, zone, drawing);
     }
-    if (ret == -1)
+    if (ret != -1)
         return (0);
     return (1);
 }
@@ -128,7 +128,7 @@ void    ft_draw_drawing(t_zone *zone, char *drawing)
     i = 0;
     while (i < zone->height)
     {
-        write(1, drawing + (i * zone->width), zone->height);
+        write(1, drawing + (i * zone->width), zone->width);
         write(1, "\n", 1);
         i++;
     }
@@ -150,7 +150,7 @@ int main(int argc, char **argv)
         return (ft_error(ERROR_FILE));
     if (!(drawing = ft_get_zone(file, &zone)))
         return (ft_clear(file, NULL, ERROR_FILE));
-    if (!ft_draw_shapes(file, drawing, &zone))
+    if (!(ft_draw_shapes(file, drawing, &zone)))
         return (ft_clear(file, drawing, ERROR_FILE));
     ft_draw_drawing(&zone, drawing);
     ft_clear(file, drawing, NULL);
