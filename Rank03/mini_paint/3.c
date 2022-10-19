@@ -1,21 +1,9 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   2.c                                                :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: aanghel <aanghel@student.42.fr>            +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/19 14:31:23 by aanghel           #+#    #+#             */
-/*   Updated: 2022/10/19 17:55:33 by aanghel          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
+#include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <stdlib.h>
 #include <math.h>
 
-#define ERROR_ARGC "Error: argument\n"
+#define ERROR_ARGC "Error; argument\n"
 #define ERROR_FILE "Error: Operation file corrupted\n"
 
 typedef struct s_zone
@@ -48,11 +36,11 @@ int ft_error(char *error)
     return 1;
 }
 
-int ft_clear(FILE * file, char *drawing, char *error)
+int ft_clear(FILE *file, char *drawing, char *error)
 {
     if(file)
         fclose(file);
-    if(drawing)
+    if (drawing)
         free(drawing);
     if (error)
         ft_error(error);
@@ -73,14 +61,14 @@ char *ft_get_zone(FILE *file, t_zone *zone)
     i = 0;
     while (i < zone->width * zone->height)
         tmp[i++] = zone->background;
-    return (tmp);
+    return tmp;
 }
 
 int ft_circle(float x, float y, t_shape *shape)
 {
     float distance;
 
-    distance = sqrtf(powf(x - shape->x, 2.) + powf(y - shape->y, 2.));
+    distance = sqrtf(powf(y - shape->y, 2.) + powf(x -shape->x, 2.));
     if (distance <= shape->radius)
     {
         if ((shape->radius - distance) < 1.00000000)
@@ -90,10 +78,10 @@ int ft_circle(float x, float y, t_shape *shape)
     return 0;
 }
 
-void ft_draw_shape(t_shape *shape, t_zone *zone, char *drawing)
+void ft_draw_shape(t_shape *shape, char *drawing, t_zone *zone)
 {
     int x, y, is_it;
-    
+
     y = 0;
     while (y < zone->width)
     {
@@ -117,9 +105,9 @@ int ft_draw_shapes(FILE *file, char *drawing, t_zone *zone)
 
     while ((ret = fscanf(file, "%c %f %f %f %c\n", &tmp.type, &tmp.x, &tmp.y, &tmp.radius, &tmp.color)) == 5)
     {
-        if (tmp.radius <= 0.00000000 || (tmp.type != 'c' && tmp.type != 'C'))
+        if (tmp.radius <= 0.00000000 && (tmp.type != 'c' || tmp.type != 'C'))
             return 0;
-        ft_draw_shape(&tmp, zone, drawing);
+        ft_draw_shape(&tmp, drawing, zone);
     }
     if (ret != -1)
         return 0;
@@ -147,15 +135,19 @@ int main(int argc, char **argv)
     zone.height = 0;
     zone.background = 0;
     drawing = NULL;
+
     if(argc != 2)
         return (ft_error(ERROR_ARGC));
     if (!(file = fopen(argv[1], "r")))
         return (ft_error(ERROR_FILE));
     if (!(drawing = ft_get_zone(file, &zone)))
-        return (ft_clear(file, NULL, ERROR_FILE));
+       return (ft_clear(file, NULL, ERROR_FILE));
     if (!(ft_draw_shapes(file, drawing, &zone)))
+    {
+        printf("3\n");
         return (ft_clear(file, drawing, ERROR_FILE));
+    }
     ft_draw_drawing(drawing, &zone);
     ft_clear(file, drawing, NULL);
-    return (0);
+    return 0;
 }
